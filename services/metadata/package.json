@@ -1,8 +1,8 @@
 {
-  "name": "@bookmark-manager/bookmarks",
+  "name": "@bookmark-manager/metadata",
   "version": "1.0.0",
   "private": true,
-  "description": "Bookmark and tag domain service",
+  "description": "Asynchronous website metadata worker",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist",

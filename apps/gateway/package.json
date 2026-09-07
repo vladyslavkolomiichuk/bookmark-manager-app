@@ -1,10 +1,13 @@
 {
-  "name": "gateway",
+  "name": "@bookmark-manager/gateway",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Public API gateway for Bookmark Manager",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts"
   },
   "keywords": [],
   "author": "",
