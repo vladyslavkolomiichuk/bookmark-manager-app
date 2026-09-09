@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generate/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FieldSource {
+  NONE
+  USER
+  METADATA
+}
+
+enum MetadataStatus {
+  READY
+  FAILED
+  PENDING
+}
+
+model Bookmark {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+
+  url           String
+  normalizedUrl String
+  urlRevision   Int    @default(1) @db.Integer //positive
+
+  title       String      @default("") @db.VarChar(160)
+  titleSource FieldSource @default(NONE)
+
+  description       String      @default("") @db.VarChar(280)
+  descriptionSource FieldSource @default(NONE)
+
+  faviconAssetId String?     @db.Uuid
+  faviconSource  FieldSource @default(NONE)
+
+  viewCount     Int       @default(0) @db.Integer //nonnegative
+  lastVisitedAt DateTime? @db.Timestamptz(3)
+
+  pinned     Boolean   @default(false)
+  archivedAt DateTime? @db.Timestamptz(3)
+
+  metadataStatus MetadataStatus @default(PENDING)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  tags          BookmarkTag[]
+  metadataCache BookmarkMetadataCache?
+
+  // faviconeAsset BookmarkAsset? @relation(fields: [faviconAssetId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, normalizedUrl])
+  @@index([userId, archivedAt, createdAt])
+  @@index([userId, archivedAt, lastVisitedAt])
+  @@index([userId, archivedAt, viewCount])
+  @@index([userId, pinned])
+  @@map("bookmarks")
+}
+
+model Tag {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+
+  name String @db.VarChar(32) // lowercase
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  bookmarks BookmarkTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model BookmarkTag {
+  bookmarkId String @db.Uuid
+  tagId      String @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  bookmark Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  tag      Tag      @relation(fields: [tagId], references: [id], onDelete: Restrict)
+
+  @@id([bookmarkId, tagId])
+  @@index([tagId])
+  @@map("bookmark_tags")
+}
+
+model BookmarkMetadataCache {
+  bookmarkId String @db.Uuid
+
+  urlRevision    Int     @db.Integer //positive
+  title          String? @db.VarChar(160)
+  description    String? @db.VarChar(280)
+  faviconAssetId String? @db.Uuid
+
+  fetchedAt DateTime @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+
+  bookmark Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  // faviconAsset BookmarkAsset? @relation(fields: [faviconAssetId], references: [id], onDelete: SetNull)
+
+  @@id([bookmarkId])
+  @@map("bookmark_metadata_caches")
+}
+
+// enum AssetStatus {
+//   PENDING
+//   READY
+//   DELETED
+// }
+
+// model BookmarkAsset {
+//   id     String @id @default(uuid()) @db.Uuid
+//   userId String @db.Uuid
+
+//   storageKey  String
+//   contentType String
+//   sizeBytes   Int
+//   status      AssetStatus
+
+//   createdAt DateTime  @default(now()) @db.Timestamptz(3)
+//   updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+//   deletedAt DateTime? @db.Timestamptz(3)
+
+//   bookmarkFavicons      Bookmark[]
+//   metadataCacheFavicons BookmarkMetadataCache[]
+
+//   @@unique([storageKey])
+//   @@map("bookmark_assets")
+// }
+
+// model OutboxEvent {
+//   id String @id @default(uuid()) @db.Uuid
+
+//   aggregateType String
+//   aggregateId   String
+
+//   topic        String
+//   eventType    String
+//   eventVersion Int
+
+//   payload       Json
+//   correlationId String
+
+//   occurredAt  DateTime  @default(now()) @db.Timestamptz(3)
+//   publishedAt DateTime? @db.Timestamptz(3)
+
+//   attemptCount Int     @default(0)
+//   lastError    String?
+
+//   @@index([publishedAt, occurredAt])
+//   @@map("outbox_events")
+// }
+
+// model InboxEvent {
+//   consumerName String
+//   eventId      String   @db.Uuid
+//   processedAt  DateTime @default(now()) @db.Timestamptz(3)
+
+//   @@id([consumerName, eventId])
+//   @@map("inbox_event")
+// }

@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    container_name: bookmark-postgres
+
+    environment:
+      POSTGRES_DB: default
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - '${POSTGRES_PORT}:5432'
+
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    networks:
+      - bookmark_postgres
+      - bookmark_bookmark
+      - bookmark_auth
+      - bookmark_metadata
+
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    container_name: bookmark-pgadmin
+
+    profiles:
+      - tools
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+
+    ports:
+      - "${PGADMIN_PORT}:80"
+
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+    networks:
+      - bookmark_postgres
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+networks:
+  bookmark_postgres:
+  bookmark_bookmark:
+  bookmark_auth:
+  bookmark_metadata:

@@ -5,3 +5,7 @@ export const TagResponseSchema = z.strictObject({
   name: z.string(),
   bookmarkCount: z.int().nonnegative(),
 });
+
+export type TagResponse = z.infer<
+  typeof TagResponseSchema
+>;

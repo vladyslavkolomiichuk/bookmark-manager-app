@@ -1,0 +1,3 @@
+CREATE DATABASE bookmarks;
+CREATE DATABASE auth;
+CREATE DATABASE metadata;
