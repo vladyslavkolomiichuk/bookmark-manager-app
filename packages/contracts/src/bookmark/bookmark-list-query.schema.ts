@@ -1,6 +1,8 @@
 import z from 'zod';
 import { TagsSchema } from '../tag/tags.schema.js';
 
+export const MAX_CURSOR_LENGTH = 2048;
+
 export const BookmarkStatusSchema = z.enum([
   'active',
   'archived',
@@ -44,7 +46,11 @@ export const BookmarkListQuerySchema =
     sort: BookmarkSortSchema.default(
       'recently-added'
     ),
-    cursor: z.string().min(1).optional(),
+    cursor: z
+      .string()
+      .min(1)
+      .max(MAX_CURSOR_LENGTH)
+      .optional(),
     limit: z.coerce
       .number()
       .int()

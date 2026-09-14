@@ -6,9 +6,9 @@ declare global {
       };
       requestId?: string;
       validated?: {
-        params: unknown;
-        query: unknown;
-        body: unknown;
+        params?: unknown;
+        query?: unknown;
+        body?: unknown;
       };
       // log: Logger;
     }

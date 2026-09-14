@@ -1,9 +1,11 @@
-import express from 'express';
+import express, { type Router } from 'express';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
 
 // Func for creating an app inside index.ts
-export function createApp() {
+export function createApp(
+  bookmarkRouter: Router
+) {
   const app = express();
 
   app.use(express.json());
@@ -16,6 +18,7 @@ export function createApp() {
   });
 
   // Routes
+  app.use('/bookmarks', bookmarkRouter);
 
   // Not found middleware
   app.use(notFound);

@@ -69,3 +69,13 @@ export class InvalidBookmarkUrlError extends AppError {
     super(message);
   }
 }
+
+export class InvalidBookmarkListCursorError extends AppError {
+  readonly code = 'INVALID_BOOKMARK_LIST_CURSOR';
+
+  readonly statusCode = 400;
+
+  constructor() {
+    super('Invalid bookmark list cursor.');
+  }
+}

@@ -5,12 +5,36 @@ import { env } from './config/env.js';
 import {
   connectDatabase,
   disconnectDatabase,
+  prisma,
 } from './database/client.js';
+import { BookmarkRepository } from './repositories/BookmarkRepository.js';
+import { TagRepository } from './repositories/TagRepository.js';
+import { BookmarkService } from './services/BookmarkService.js';
+import { BookmarkController } from './controllers/BookmarkController.js';
+import { createBookmarkRouter } from './routes/bookmark.routes.js';
 
 // Starting a single prisma entry point
 await connectDatabase();
 
-const app = createApp();
+const bookmarkRepository =
+  new BookmarkRepository();
+const tagRepository = new TagRepository();
+
+const bookmarkService = new BookmarkService(
+  prisma,
+  bookmarkRepository,
+  tagRepository
+);
+
+const bookmarkController = new BookmarkController(
+  bookmarkService
+);
+
+const bookmarkRouter = createBookmarkRouter(
+  bookmarkController
+);
+
+const app = createApp(bookmarkRouter);
 
 // Starting server with listening from all ip
 const server = app.listen(
