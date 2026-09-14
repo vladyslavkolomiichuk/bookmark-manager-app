@@ -6,3 +6,4 @@ export * from './forgot-password.schema.js';
 export * from './reset-password.schema.js';
 export * from './gateway-authenticated-user.schema.js';
 export * from './forgot-password-response.schema.js';
+export * from './internal-user-jwt-claims.schema.js';
